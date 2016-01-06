@@ -59,9 +59,15 @@ def close_db(error):
 
 @app.route('/')
 def instances():
-    db = get_db()
-    cur = db.execute('select title, text from entries order by id desc')
-    instances = cur.fetchall()
+    # db = get_db()
+    # cur = db.execute('select title, text from entries order by id desc')
+    # instances = cur.fetchall()
+    '''
+    fake data here, pls replace it.
+    '''
+    instances = [{'name': 'host1', 'status': 'running', 'ip': '127.0.0.1'},
+        {'name': 'host1', 'status': 'running', 'ip': '127.0.0.2'}]
+    print instances
     return render_template('instances.html', instances=instances)
 
 @app.route('/add', methods=['POST'])

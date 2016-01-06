@@ -1,5 +1,5 @@
 {% extends "layout.html" %}
-{% block body %}
+{% block content %}
   {% if session.logged_in %}
     <form action="{{ url_for('add_entry') }}" method="post" class="add-entry">
       <dl>
@@ -13,7 +13,7 @@
   {% endif %}
   <ul class="entries">
   {% for entry in instances %}
-    <li><h2>{{ entry.title }}</h2>{{ entry.text|safe }}
+    <li><h2>{{ entry.name }}</h2>{{ entry.ip }}<br/>{{ entry.status }}
   {% else %}
     <li><em>Unbelievable.  No entries here so far</em>
   {% endfor %}
