@@ -1,22 +1,85 @@
 {% extends "layout.html" %}
 {% block content %}
   {% if session.logged_in %}
-  <table class="table table-striped">
+  <table class="table table-hover table-striped sortable-theme-bootstrap" data-sortable>
     <thead class="thead-inverse">
-      <tr>
-        <th>#</th>
+    <tr>
         <th>Name</th>
-        <th>IP</th>
+        <th>Host</th>
         <th>Status</th>
-      </tr>
+        <th>VCPU</th>
+        <th>Memory</th>
+        <th data-sortable="false" style="width:205px;">Actions</th>
+    </tr>
     </thead>
-    <tbody>
+    <tbody class="searchable">
       {% for entry in instances %}
       <tr>
-        <th scope="row">1</th>
         <td>{{ entry.name }}</td>
         <td>{{ entry.ip }}</td>
         <td>{{ entry.status }}</td>
+        <td>1</td>
+        <td>200M</td>
+<!--         <td><button type="button" class="btn btn-primary">Stop</button>
+        <button type="button" class="btn btn-primary">Terminate</button>
+        <button type="button" class="btn btn-primary">Setting</button>
+        <button type="button" class="btn btn-warning">Delete</button></td> -->
+            <td><form action="" method="post" role="form">
+                    <input type="hidden" name="name" value="{{ entry.ip }}"/>
+                    <input type="hidden" name="compute_id" value="{{ entry.ip }}"/>
+                    {% if True %}
+                        <button class="btn btn-sm btn-default" type="submit" name="poweron" title="""Power On">
+                            <span class="glyphicon glyphicon-play"></span>
+                        </button>
+                        <button class="btn btn-sm btn-default disabled" title="""Suspend">
+                            <span class="glyphicon glyphicon-pause"></span>
+                        </button>
+                        <button class="btn btn-sm btn-default disabled" title="Power Off">
+                            <span class="glyphicon glyphicon-off"></span>
+                        </button>
+                        <button class="btn btn-sm btn-default disabled" title="Power Cycle">
+                            <span class="glyphicon glyphicon-refresh"></span>
+                        </button>
+                        <button class="btn btn-sm btn-default disabled" title="VNC Console">
+                            <span class="glyphicon glyphicon-eye-open"></span>
+                        </button>
+                    {% endif %}
+                    {% if False %}
+                        <button class="btn btn-sm btn-default" type="submit" name="resume" title="Resume">
+                            <span class="glyphicon glyphicon-play"></span>
+                        </button>
+                        <button class="btn btn-sm btn-default disabled" title="Suspend">
+                            <span class="glyphicon glyphicon-pause"></span>
+                        </button>
+                        <button class="btn btn-sm btn-default disabled" title="Power Off">
+                            <span class="glyphicon glyphicon-off"></span>
+                        </button>
+                        <button class="btn btn-sm btn-default disabled" title="Power Cycle">
+                            <span class="glyphicon glyphicon-refresh"></span>
+                        </button>
+                        <button class="btn btn-sm btn-default disabled" title="VNC Console">
+                            <span class="glyphicon glyphicon-eye-open"></span>
+                        </button>
+                    {% endif %}
+                    {% if False %}
+                        <button class="btn btn-sm btn-default disabled" title="Power On">
+                            <span class="glyphicon glyphicon-play"></span>
+                        </button>
+                        <button class="btn btn-sm btn-default" type="submit" name="suspend" title="Suspend">
+                            <span class="glyphicon glyphicon-pause"></span>
+                        </button>
+                        <button class="btn btn-sm btn-default" type="submit" name="poweroff" title="Power Off" onclick="return confirm('Are you sure?')">
+                            <span class="glyphicon glyphicon-off"></span>
+                        </button>
+                        <button class="btn btn-sm btn-default" type="submit" name="powercycle" title="Power Cycle" onclick="return confirm('Are you sure?')">
+                            <span class="glyphicon glyphicon-refresh"></span>
+                        </button>
+                        <a href="#" class="btn btn-sm btn-default" onclick='open_console("{{ entry.ip }}-{{ entry.ip }}")' title="Console">
+                            <span class="glyphicon glyphicon-eye-open"></span>
+                        </a>
+                    {% endif %}
+                </form>
+            </td>
       </tr>
       {% else %}
       <li><em>Unbelievable.  No entries here so far</em>
