@@ -1,9 +1,8 @@
 # -*- coding: utf-8 -*-
-import os
+import os, time
 from sqlite3 import dbapi2 as sqlite3
 from flask import Flask, request, session, g, redirect, url_for, abort, \
      render_template, flash
-
 
 # create our little application :)
 app = Flask(__name__)
@@ -70,8 +69,12 @@ def instances():
             {'name': 'host9', 'status': '3', 'ip': '127.0.0.9'},
             {'name': 'host10', 'status': '1', 'ip': '127.0.0.10'},
             ]
-        print instances
-        return render_template('instances.html', instances=instances)
+        # print instances
+        servers = [
+            {'id': 'server1', 'name': '192.168.1.3'},
+            {'id': 'server2', 'name': '127.0.0.1'}
+            ]
+        return render_template('instances.html', instances=instances, servers=servers)
 
     if request.method == 'POST':
         print request.form
@@ -88,16 +91,16 @@ def instances():
             print "resume"
         return render_template('instances.html', test="xxx")
 
-@app.route('/instances/add', methods=['POST'])
-def add_entry():
+@app.route('/instances/<server_name>/create/')
+def create_instance(server_name):
     if not session.get('logged_in'):
         abort(401)
     # db = get_db()
     # db.execute('insert into entries (title, text) values (?, ?)',
     #            [request.form['title'], request.form['text']])
     # db.commit()
-    flash('New entry was successfully posted')
-    return redirect(url_for('instances'))
+    print "create instance on ", server_name, "...."
+    return render_template('instance.html', test="xxx")
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():

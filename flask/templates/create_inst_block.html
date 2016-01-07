@@ -1,0 +1,47 @@
+<a href="#AddInstance" type="button" class="btn btn-success btn-header pull-right" data-toggle="modal">
+    <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>
+</a>
+
+<!-- Modal pool -->
+<div class="modal fade" id="AddInstance" tabindex="-1" role="dialog" aria-labelledby="AddNetPoolLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                <h4 class="modal-title"> Choose a Server for new zone </h4>
+            </div>
+            <div class="modal-body">
+                <form class="form-horizontal" role="form">
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label"> Server </label>
+                        <div class="col-sm-6">
+                            <select class="form-control" id="server_select">
+                                {% if servers %}
+                                    {% for server in servers %}
+                                        <option value="{{ server.id }}">{{ server.name }}</option>
+                                    {% endfor %}
+                                {% else %}
+                                    <option value="None"> None </option>
+                                {% endif %}
+                            </select>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">
+                     Close
+                </button>
+                {% if servers %}
+                    <button type="submit" class="btn btn-primary" name="chose" onclick='create_instance()'>
+                         Chose
+                    </button>
+                {% else %}
+                    <button class="btn btn-primary disabled">
+                         Chose
+                    </button>
+                {% endif %}
+            </div>
+        </div> <!-- /.modal-content -->
+    </div> <!-- /.modal-dialog -->
+</div> <!-- /.modal -->
