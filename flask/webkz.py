@@ -100,7 +100,7 @@ def create_instance(server_name):
     #            [request.form['title'], request.form['text']])
     # db.commit()
     print "create instance on ", server_name, "...."
-    return render_template('instance.html', test="xxx")
+    return render_template('instance.html', entry="xxx")
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
