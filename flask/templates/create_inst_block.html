@@ -18,7 +18,7 @@
                             <select class="form-control" id="server_select">
                                 {% if servers %}
                                     {% for server in servers %}
-                                        <option value="{{ server.id }}">{{ server.name }}</option>
+                                        <option value="{{ server.id }}">{{ server.id }}</option>
                                     {% endfor %}
                                 {% else %}
                                     <option value="None"> None </option>

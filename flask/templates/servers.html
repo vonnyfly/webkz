@@ -5,8 +5,8 @@
     <thead class="thead-inverse">
       <tr>
         <th>#</th>
-        <th>Name</th>
-        <th>IP</th>
+        <th>Id</th>
+        <th>Domain</th>
         <th>Status</th>
       </tr>
     </thead>
@@ -14,9 +14,9 @@
       {% for entry in servers %}
       <tr>
         <th scope="row">1</th>
-        <td>{{ entry.name }}</td>
-        <td>{{ entry.ip }}</td>
-        <td>{{ entry.status }}</td>
+        <td>{{ entry.id }}</td>
+        <td>{{ entry.domain }}</td>
+        <td>Running</td>
       </tr>
       {% else %}
       <li><em>Unbelievable.  No entries here so far</em>

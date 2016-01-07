@@ -7,6 +7,7 @@ import logging
 from logging.handlers import RotatingFileHandler
 from time import gmtime, strftime
 import json
+import urllib2
 
 # create our little application :)
 app = Flask(__name__)
@@ -44,7 +45,18 @@ def _parser_log():
     for line in content:
         logs.append(line.split('|'))
     return logs
-	
+
+def _load_remote_json(domain, route):
+    url = "http://" + domain + ":5000/" + route
+    print url
+    return json.load(urllib2.urlopen(url))
+
+g_servers = [
+    # {'id': 'SanFrancisco-1', 'domain': 'netqe-vm-243.cn.oracle.com'},
+    # {'id': 'BeiJing-1', 'domain': 'netqe-vm-237.cn.oracle.com'},
+    {'id': 'SuZhou-vm', 'domain': '192.168.1.71'},
+    ]
+
 def connect_db():
     """Connects to the specific database."""
     rv = sqlite3.connect(app.config['DATABASE'])
@@ -71,14 +83,14 @@ def close_db(error):
 @app.route('/')
 def index():
     return redirect(url_for('dashboard'))
-	
+
 @app.route('/dashboard')
 def dashboard():
 	if not session.get('logged_in'):
 		return redirect(url_for('login'))
 	logs = _parser_log()
 	return render_template('dashboard.html',logs=logs)
-	
+
 @app.route('/logs')
 def show_log():
 	logs = _parser_log()
@@ -96,24 +108,25 @@ def instances():
         '''
         fake data here, pls replace it.
         '''
-        instances = [
-            {'name': 'host1', 'status': '1', 'ip': '127.0.0.1'},
-            {'name': 'host2', 'status': '2', 'ip': '127.0.0.2'},
-            {'name': 'host3', 'status': '3', 'ip': '127.0.0.3'},
-            {'name': 'host4', 'status': '1', 'ip': '127.0.0.4'},
-            {'name': 'host5', 'status': '2', 'ip': '127.0.0.5'},
-            {'name': 'host6', 'status': '3', 'ip': '127.0.0.6'},
-            {'name': 'host7', 'status': '1', 'ip': '127.0.0.7'},
-            {'name': 'host8', 'status': '2', 'ip': '127.0.0.8'},
-            {'name': 'host9', 'status': '3', 'ip': '127.0.0.9'},
-            {'name': 'host10', 'status': '1', 'ip': '127.0.0.10'},
-            ]
+        # instances = [
+        #     {'name': 'host1', 'status': '1', 'ip': '127.0.0.1'},
+        #     {'name': 'host2', 'status': '2', 'ip': '127.0.0.2'},
+        #     {'name': 'host3', 'status': '3', 'ip': '127.0.0.3'},
+        #     {'name': 'host4', 'status': '1', 'ip': '127.0.0.4'},
+        #     {'name': 'host5', 'status': '2', 'ip': '127.0.0.5'},
+        #     {'name': 'host6', 'status': '3', 'ip': '127.0.0.6'},
+        #     {'name': 'host7', 'status': '1', 'ip': '127.0.0.7'},
+        #     {'name': 'host8', 'status': '2', 'ip': '127.0.0.8'},
+        #     {'name': 'host9', 'status': '3', 'ip': '127.0.0.9'},
+        #     {'name': 'host10', 'status': '1', 'ip': '127.0.0.10'},
+        #     ]
         # print instances
-        servers = [
-            {'id': 'server1', 'name': '192.168.1.3'},
-            {'id': 'server2', 'name': '127.0.0.1'}
-            ]
-        return render_template('instances.html', instances=instances, servers=servers)
+        instances = []
+        for serv in g_servers:
+            print serv
+            instances.append(_load_remote_json(serv['domain'], "list"))
+        print instances
+        return render_template('instances.html', instances=instances, servers=g_servers)
 
     if request.method == 'POST':
         print request.form
@@ -151,7 +164,7 @@ def users():
 			{'name': 'Chenchen', 'id': '7', 'role': 'instance admin'}
             ];
 	return render_template('users.html', users=users)
-	
+
 @app.route('/servers/<server_name>/create/')
 def create_instance(server_name):
     if not session.get('logged_in'):
@@ -194,25 +207,11 @@ def servers():
     # instances = cur.fetchall()
     if not session.get('logged_in'):
         return redirect(url_for('login'))
-    '''
-    fake data here, pls replace it.
-    '''
-    servers = [
-        {'name': 'host1', 'status': 'running', 'ip': '127.0.0.1'},
-        {'name': 'host2', 'status': 'running', 'ip': '127.0.0.2'},
-        {'name': 'host3', 'status': 'running', 'ip': '127.0.0.3'},
-        {'name': 'host4', 'status': 'running', 'ip': '127.0.0.4'},
-        {'name': 'host5', 'status': 'running', 'ip': '127.0.0.5'},
-        {'name': 'host6', 'status': 'running', 'ip': '127.0.0.6'},
-        {'name': 'host7', 'status': 'running', 'ip': '127.0.0.7'},
-        {'name': 'host8', 'status': 'running', 'ip': '127.0.0.8'},
-        {'name': 'host9', 'status': 'running', 'ip': '127.0.0.9'},
-        {'name': 'host10', 'status': 'running', 'ip': '127.0.0.10'},
-        ]
-    return render_template('servers.html', servers=servers)
+    print servers
+    return render_template('servers.html', servers=g_servers)
 
 if __name__ == "__main__":
     handler = RotatingFileHandler('foo.log', maxBytes=10000, backupCount=1)
     handler.setLevel(logging.INFO)
     app.logger.addHandler(handler)
-    app.run()
+    app.run('0.0.0.0')
