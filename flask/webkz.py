@@ -46,30 +46,47 @@ def close_db(error):
 def index():
     return redirect(url_for('instances'))
 
-@app.route('/instances')
+@app.route('/instances', methods=['GET', 'POST'])
 def instances():
     # db = get_db()
     # cur = db.execute('select title, text from entries order by id desc')
     # instances = cur.fetchall()
     if not session.get('logged_in'):
         return redirect(url_for('login'))
-    '''
-    fake data here, pls replace it.
-    '''
-    instances = [
-        {'name': 'host1', 'status': 'running', 'ip': '127.0.0.1'},
-        {'name': 'host2', 'status': 'running', 'ip': '127.0.0.2'},
-        {'name': 'host3', 'status': 'running', 'ip': '127.0.0.3'},
-        {'name': 'host4', 'status': 'running', 'ip': '127.0.0.4'},
-        {'name': 'host5', 'status': 'running', 'ip': '127.0.0.5'},
-        {'name': 'host6', 'status': 'running', 'ip': '127.0.0.6'},
-        {'name': 'host7', 'status': 'running', 'ip': '127.0.0.7'},
-        {'name': 'host8', 'status': 'running', 'ip': '127.0.0.8'},
-        {'name': 'host9', 'status': 'running', 'ip': '127.0.0.9'},
-        {'name': 'host10', 'status': 'running', 'ip': '127.0.0.10'},
-        ]
-    print instances
-    return render_template('instances.html', instances=instances)
+
+    if request.method == 'GET':
+        '''
+        fake data here, pls replace it.
+        '''
+        instances = [
+            {'name': 'host1', 'status': '1', 'ip': '127.0.0.1'},
+            {'name': 'host2', 'status': '2', 'ip': '127.0.0.2'},
+            {'name': 'host3', 'status': '3', 'ip': '127.0.0.3'},
+            {'name': 'host4', 'status': '1', 'ip': '127.0.0.4'},
+            {'name': 'host5', 'status': '2', 'ip': '127.0.0.5'},
+            {'name': 'host6', 'status': '3', 'ip': '127.0.0.6'},
+            {'name': 'host7', 'status': '1', 'ip': '127.0.0.7'},
+            {'name': 'host8', 'status': '2', 'ip': '127.0.0.8'},
+            {'name': 'host9', 'status': '3', 'ip': '127.0.0.9'},
+            {'name': 'host10', 'status': '1', 'ip': '127.0.0.10'},
+            ]
+        print instances
+        return render_template('instances.html', instances=instances)
+
+    if request.method == 'POST':
+        print request.form
+        name = request.form['name']
+        if 'poweron' in request.form:
+            print "poweronxxxxx"
+        if 'poweroff' in request.form:
+            print "poweroff"
+        if 'powercycle' in request.form:
+            print "powercycle"
+        if 'suspend' in request.form:
+            print "suspend"
+        if 'resume' in request.form:
+            print "resume"
+        return render_template('instances.html', test="xxx")
 
 @app.route('/instances/add', methods=['POST'])
 def add_entry():

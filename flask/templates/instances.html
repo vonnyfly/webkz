@@ -27,11 +27,11 @@
             <td><form action="" method="post" role="form">
                     <input type="hidden" name="name" value="{{ entry.ip }}"/>
                     <input type="hidden" name="compute_id" value="{{ entry.ip }}"/>
-                    {% if True %}
-                        <button class="btn btn-sm btn-default" type="submit" name="poweron" title="""Power On">
+                    {% if entry.status == "1" %}
+                        <button class="btn btn-sm btn-default" type="submit" name="poweron" title="Power On">
                             <span class="glyphicon glyphicon-play"></span>
                         </button>
-                        <button class="btn btn-sm btn-default disabled" title="""Suspend">
+                        <button class="btn btn-sm btn-default disabled" title="Suspend">
                             <span class="glyphicon glyphicon-pause"></span>
                         </button>
                         <button class="btn btn-sm btn-default disabled" title="Power Off">
@@ -44,7 +44,7 @@
                             <span class="glyphicon glyphicon-eye-open"></span>
                         </button>
                     {% endif %}
-                    {% if False %}
+                     {% if entry.status == "2" %}
                         <button class="btn btn-sm btn-default" type="submit" name="resume" title="Resume">
                             <span class="glyphicon glyphicon-play"></span>
                         </button>
@@ -61,7 +61,7 @@
                             <span class="glyphicon glyphicon-eye-open"></span>
                         </button>
                     {% endif %}
-                    {% if False %}
+                     {% if entry.status == "3" %}
                         <button class="btn btn-sm btn-default disabled" title="Power On">
                             <span class="glyphicon glyphicon-play"></span>
                         </button>
