@@ -29,7 +29,7 @@ def _get_time():
     return strftime("%Y-%m-%d %H:%M:%S", gmtime())
 
 def _format_log(msg):
-    return '%s | %s | Operation: %s' %(_get_time(), session['username'], msg)
+    return '%s | %s | %s' %(_get_time(), session['username'], msg)
 
 def _parser_log():
     if not session.get('logged_in'):
@@ -40,7 +40,7 @@ def _parser_log():
     logs = []
     if os.path.exists(log_file):
         with open(log_file, 'r') as f:
-            content = f.readlines()
+            content = reversed(f.readlines())
 
     for line in content:
         logs.append(line.split('|'))
@@ -49,13 +49,29 @@ def _parser_log():
 def _load_remote_json(domain, route):
     url = "http://" + domain + ":5000/" + route
     print url
-    return json.load(urllib2.urlopen(url))
+    try:
+        data = json.load(urllib2.urlopen(url, timeout = 2))
+    except urllib2.URLError, e:
+        app.logger.info(_format_log("Timeout: " + url))
+        return None
+    return data
 
-g_servers = [
-    # {'id': 'SanFrancisco-1', 'domain': 'netqe-vm-243.cn.oracle.com'},
-    # {'id': 'BeiJing-1', 'domain': 'netqe-vm-237.cn.oracle.com'},
+def _check_server_up(hostname):
+    import socket;
+    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    sock.settimeout(5)
+    result = sock.connect_ex((hostname, 22))
+    if result == 0:
+        return True
+    return False
+
+g_all_servers = [
+    {'id': 'SanFrancisco-1', 'domain': 'netqe-vm-243.cn.oracle.com'},
+    {'id': 'BeiJing-1', 'domain': 'netqe-vm-237.cn.oracle.com'},
     {'id': 'SuZhou-vm', 'domain': '192.168.1.71'},
     ]
+'''online server'''
+g_servers = []
 
 def connect_db():
     """Connects to the specific database."""
@@ -124,8 +140,16 @@ def instances():
         instances = []
         for serv in g_servers:
             print serv
-            instances.append(_load_remote_json(serv['domain'], "list"))
+            ins = _load_remote_json(serv['domain'], "list")
+            if ins:
+                instances.append()
         print instances
+        if len(instances) == 0:
+            instances = [
+                {'name': 'host1', 'status': '1', 'ip': '127.0.0.1'},
+                {'name': 'host2', 'status': '2', 'ip': '127.0.0.2'},
+                {'name': 'host3', 'status': '3', 'ip': '127.0.0.3'},
+                ]
         return render_template('instances.html', instances=instances, servers=g_servers)
 
     if request.method == 'POST':
@@ -207,11 +231,16 @@ def servers():
     # instances = cur.fetchall()
     if not session.get('logged_in'):
         return redirect(url_for('login'))
-    print servers
     return render_template('servers.html', servers=g_servers)
 
 if __name__ == "__main__":
     handler = RotatingFileHandler('foo.log', maxBytes=10000, backupCount=1)
     handler.setLevel(logging.INFO)
     app.logger.addHandler(handler)
+
+    for server in g_all_servers:
+        print server
+        if _check_server_up(server['domain']):
+            g_servers.append(server)
+            print str(server) + " is up!"
     app.run('0.0.0.0')
