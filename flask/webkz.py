@@ -14,7 +14,7 @@ app.config.update(dict(
     DEBUG=True,
     SECRET_KEY='development key',
     USERNAME='admin',
-    PASSWORD='default'
+    PASSWORD='admin'
 ))
 app.config.from_envvar('WEBKZ_SETTINGS', silent=True)
 
@@ -43,29 +43,44 @@ def close_db(error):
 
 
 @app.route('/')
+def index():
+    return redirect(url_for('instances'))
+
+@app.route('/instances')
 def instances():
     # db = get_db()
     # cur = db.execute('select title, text from entries order by id desc')
     # instances = cur.fetchall()
+    if not session.get('logged_in'):
+        return redirect(url_for('login'))
     '''
     fake data here, pls replace it.
     '''
-    instances = [{'name': 'host1', 'status': 'running', 'ip': '127.0.0.1'},
-        {'name': 'host1', 'status': 'running', 'ip': '127.0.0.2'}]
+    instances = [
+        {'name': 'host1', 'status': 'running', 'ip': '127.0.0.1'},
+        {'name': 'host2', 'status': 'running', 'ip': '127.0.0.2'},
+        {'name': 'host3', 'status': 'running', 'ip': '127.0.0.3'},
+        {'name': 'host4', 'status': 'running', 'ip': '127.0.0.4'},
+        {'name': 'host5', 'status': 'running', 'ip': '127.0.0.5'},
+        {'name': 'host6', 'status': 'running', 'ip': '127.0.0.6'},
+        {'name': 'host7', 'status': 'running', 'ip': '127.0.0.7'},
+        {'name': 'host8', 'status': 'running', 'ip': '127.0.0.8'},
+        {'name': 'host9', 'status': 'running', 'ip': '127.0.0.9'},
+        {'name': 'host10', 'status': 'running', 'ip': '127.0.0.10'},
+        ]
     print instances
     return render_template('instances.html', instances=instances)
 
-@app.route('/add', methods=['POST'])
+@app.route('/instances/add', methods=['POST'])
 def add_entry():
     if not session.get('logged_in'):
         abort(401)
-    db = get_db()
-    db.execute('insert into entries (title, text) values (?, ?)',
-               [request.form['title'], request.form['text']])
-    db.commit()
+    # db = get_db()
+    # db.execute('insert into entries (title, text) values (?, ?)',
+    #            [request.form['title'], request.form['text']])
+    # db.commit()
     flash('New entry was successfully posted')
-    return redirect(url_for('show_entries'))
-
+    return redirect(url_for('instances'))
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -78,7 +93,7 @@ def login():
         else:
             session['logged_in'] = True
             flash('You were logged in')
-            return redirect(url_for('show_entries'))
+            return redirect(url_for('instances'))
     return render_template('login.html', error=error)
 
 
@@ -86,7 +101,31 @@ def login():
 def logout():
     session.pop('logged_in', None)
     flash('You were logged out')
-    return redirect(url_for('show_entries'))
+    return redirect(url_for('login'))
+
+@app.route('/servers')
+def servers():
+    # db = get_db()
+    # cur = db.execute('select title, text from entries order by id desc')
+    # instances = cur.fetchall()
+    if not session.get('logged_in'):
+        return redirect(url_for('login'))
+    '''
+    fake data here, pls replace it.
+    '''
+    servers = [
+        {'name': 'host1', 'status': 'running', 'ip': '127.0.0.1'},
+        {'name': 'host2', 'status': 'running', 'ip': '127.0.0.2'},
+        {'name': 'host3', 'status': 'running', 'ip': '127.0.0.3'},
+        {'name': 'host4', 'status': 'running', 'ip': '127.0.0.4'},
+        {'name': 'host5', 'status': 'running', 'ip': '127.0.0.5'},
+        {'name': 'host6', 'status': 'running', 'ip': '127.0.0.6'},
+        {'name': 'host7', 'status': 'running', 'ip': '127.0.0.7'},
+        {'name': 'host8', 'status': 'running', 'ip': '127.0.0.8'},
+        {'name': 'host9', 'status': 'running', 'ip': '127.0.0.9'},
+        {'name': 'host10', 'status': 'running', 'ip': '127.0.0.10'},
+        ]
+    return render_template('servers.html', servers=servers)
 
 if __name__ == "__main__":
     app.run()
