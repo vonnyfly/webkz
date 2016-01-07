@@ -3,6 +3,8 @@ import os, time
 from sqlite3 import dbapi2 as sqlite3
 from flask import Flask, request, session, g, redirect, url_for, abort, \
      render_template, flash
+import logging
+from logging.handlers import RotatingFileHandler
 
 # create our little application :)
 app = Flask(__name__)
@@ -45,6 +47,14 @@ def close_db(error):
 def index():
     return redirect(url_for('instances'))
 
+@app.route('/logs')
+def record_log():
+    if not session.get('logged_in'):
+        return redirect(url_for('login'))
+    with open('foo.log', 'r') as f:
+        content = f.readlines()
+    return render_template('logs.html', logs=content)
+
 @app.route('/instances', methods=['GET', 'POST'])
 def instances():
     # db = get_db()
@@ -80,14 +90,19 @@ def instances():
         print request.form
         name = request.form['name']
         if 'poweron' in request.form:
+            app.logger.info('User: %s, Operation:Poweron' %(session['username'],))
             print "poweronxxxxx"
         if 'poweroff' in request.form:
+            app.logger.info('User: %s, Operation:poweroff' %(session['username'],))
             print "poweroff"
         if 'powercycle' in request.form:
+            app.logger.info('User: %s, Operation:powercycle' %(session['username'],))
             print "powercycle"
         if 'suspend' in request.form:
+            app.logger.info('User: %s, Operation:suspend' %(session['username'],))
             print "suspend"
         if 'resume' in request.form:
+            app.logger.info('User: %s, Operation:resume' %(session['username'],))
             print "resume"
         return render_template('instances.html', test="xxx")
 
@@ -112,15 +127,17 @@ def login():
             error = 'Invalid password'
         else:
             session['logged_in'] = True
-            flash('You were logged in')
+            session['username'] = request.form['username']
+            app.logger.info('User: %s, Operation:login' %(session['username'],))
             return redirect(url_for('instances'))
     return render_template('login.html', error=error)
 
 
 @app.route('/logout')
 def logout():
+    app.logger.info('User: %s, Operation:logout' %(session['username'],))
     session.pop('logged_in', None)
-    flash('You were logged out')
+    session.pop('username', None)
     return redirect(url_for('login'))
 
 @app.route('/servers')
@@ -148,4 +165,7 @@ def servers():
     return render_template('servers.html', servers=servers)
 
 if __name__ == "__main__":
+    handler = RotatingFileHandler('foo.log', maxBytes=10000, backupCount=1)
+    handler.setLevel(logging.INFO)
+    app.logger.addHandler(handler)
     app.run()
