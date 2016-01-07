@@ -37,7 +37,8 @@ def _get_time():
     return strftime("%Y-%m-%d %H:%M:%S", gmtime())
 
 def _format_log(msg):
-    return '%s | %s | %s' %(_get_time(), session['username'], msg)
+    username = session['username']
+    return '%s | %s | %s' %(_get_time(), username, msg)
 
 def _parser_log():
     if not session.get('logged_in'):
@@ -73,14 +74,24 @@ def _check_server_up(hostname):
         return True
     return False
 
-def _check_servers():
+def _check_servers(log=True):
+    global g_servers
+    g_servers = []
     for i, _ in enumerate(g_all_servers):
         if _check_server_up(g_all_servers[i]['domain']):
             g_servers.append(g_all_servers[i])
             g_all_servers[i]['status'] = 1
-            print str(g_all_servers[i]) + " is up!"
+            if log:
+                app.logger.info(_format_log(g_all_servers[i]['domain'] + " is up!"))
+            else:
+                print g_all_servers[i]['domain'] + " is up!"
+            # print str(g_all_servers[i]) + " is up!"
         else:
             g_all_servers[i]['status'] = 0
+            if log:
+                app.logger.info(_format_log(g_all_servers[i]['domain'] + " is down!"))
+            else:
+                print g_all_servers[i]['domain'] + " is down!"
 '''
 DB
 '''
@@ -132,38 +143,6 @@ def instances():
     if not session.get('logged_in'):
         return redirect(url_for('login'))
 
-    if request.method == 'GET':
-        '''
-        fake data here, pls replace it.
-        '''
-        # instances = [
-        #     {'name': 'host1', 'status': '1', 'ip': '127.0.0.1'},
-        #     {'name': 'host2', 'status': '2', 'ip': '127.0.0.2'},
-        #     {'name': 'host3', 'status': '3', 'ip': '127.0.0.3'},
-        #     {'name': 'host4', 'status': '1', 'ip': '127.0.0.4'},
-        #     {'name': 'host5', 'status': '2', 'ip': '127.0.0.5'},
-        #     {'name': 'host6', 'status': '3', 'ip': '127.0.0.6'},
-        #     {'name': 'host7', 'status': '1', 'ip': '127.0.0.7'},
-        #     {'name': 'host8', 'status': '2', 'ip': '127.0.0.8'},
-        #     {'name': 'host9', 'status': '3', 'ip': '127.0.0.9'},
-        #     {'name': 'host10', 'status': '1', 'ip': '127.0.0.10'},
-        #     ]
-        # print instances
-        instances = []
-        for serv in g_servers:
-            print serv
-            ins = _load_remote_json(serv['domain'], "list")
-            if ins:
-                instances.append()
-        print instances
-        if len(instances) == 0:
-            instances = [
-                {'name': 'host1', 'status': '1', 'ip': '127.0.0.1'},
-                {'name': 'host2', 'status': '2', 'ip': '127.0.0.2'},
-                {'name': 'host3', 'status': '3', 'ip': '127.0.0.3'},
-                ]
-        return render_template('instances.html', instances=instances, servers=g_servers)
-
     if request.method == 'POST':
         print request.form
         name = request.form['name']
@@ -181,10 +160,41 @@ def instances():
 
         if 'resume' in request.form:
             pass
-
         app.logger.info(_format_log(json.dumps(request.form)))
 
-        return render_template('instances.html', test="xxx")
+    # if request.method == 'GET':
+        # instances = {'server': [
+        #     {'name': 'host1', 'status': '1', 'ip': '127.0.0.1'},
+        #     {'name': 'host2', 'status': '2', 'ip': '127.0.0.2'},
+        #     {'name': 'host3', 'status': '3', 'ip': '127.0.0.3'},
+        #     {'name': 'host4', 'status': '1', 'ip': '127.0.0.4'},
+        #     {'name': 'host5', 'status': '2', 'ip': '127.0.0.5'},
+        #     {'name': 'host6', 'status': '3', 'ip': '127.0.0.6'},
+        #     {'name': 'host7', 'status': '1', 'ip': '127.0.0.7'},
+        #     {'name': 'host8', 'status': '2', 'ip': '127.0.0.8'},
+        #     {'name': 'host9', 'status': '3', 'ip': '127.0.0.9'},
+        #     {'name': 'host10', 'status': '1', 'ip': '127.0.0.10'},
+        #     ]}
+        # print instances
+    instances = {}
+    for serv in g_servers:
+        print serv
+        ins = _load_remote_json(serv['domain'], "list")
+        if ins:
+            # for i,_ in enumerate(ins)
+            # instances.extend(ins)
+            instances[serv['domain']] = ins
+
+    if len(instances) == 0:
+        instances = {'hotdog': [
+            {'name': 'host1', 'status': '1', 'ip': '127.0.0.1'}],
+            'hotcat': [
+            {'name': 'host2', 'status': '2', 'ip': '127.0.0.2'},
+            {'name': 'host3', 'status': '3', 'ip': '127.0.0.3'}]}
+    print instances
+    return render_template('instances.html', instances=instances)
+
+        # return render_template('instance.html', test="xxx", entry="xxx")
 
 @app.route('/users')
 def users():
@@ -247,9 +257,9 @@ def servers():
     return render_template('servers.html', servers=g_all_servers)
 
 if __name__ == "__main__":
-    handler = RotatingFileHandler('foo.log', maxBytes=10000, backupCount=1)
+    handler = RotatingFileHandler('foo.log', maxBytes=100000, backupCount=1)
     handler.setLevel(logging.INFO)
     app.logger.addHandler(handler)
 
-    _check_servers()
+    _check_servers(log=False)
     app.run('0.0.0.0')
