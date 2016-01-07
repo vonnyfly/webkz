@@ -126,7 +126,7 @@ def instances():
 
         return render_template('instances.html', test="xxx")
 
-@app.route('/instances/<server_name>/create/')
+@app.route('/servers/<server_name>/create/')
 def create_instance(server_name):
     if not session.get('logged_in'):
         abort(401)
@@ -134,8 +134,9 @@ def create_instance(server_name):
     # db.execute('insert into entries (title, text) values (?, ?)',
     #            [request.form['title'], request.form['text']])
     # db.commit()
-    print "create instance on ", server_name, "...."
-    return render_template('instance.html', entry="xxx")
+    instance_name = request.args.get('name', '')
+    app.logger.info(_format_log(json.dumps("Create Zone - %s on %s" % (instance_name, server_name))))
+    return render_template('instance.html', instance_name=instance_name, entry="xxxx")
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():

@@ -91,7 +91,8 @@
   <script>
       function create_instance() {
           var compute = $("#server_select").val();
-          window.location = "/instances/" + compute + "/create/";
+          var instance_name = $("#instance_name").val();
+          window.location = "/servers/" + compute + "/create?name=" + instance_name;
       }
   </script>
 {% endblock %}
