@@ -16,7 +16,11 @@
         <th scope="row">1</th>
         <td>{{ entry.id }}</td>
         <td>{{ entry.domain }}</td>
-        <td>Running</td>
+        {% if entry.status == 1 %}
+        <td><span class="label label-success">Online</span></td>
+        {% else %}
+        <td><span class="label label-danger">Offline</span></td>
+        {% endif %}
       </tr>
       {% else %}
       <li><em>Unbelievable.  No entries here so far</em>

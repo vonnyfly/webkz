@@ -22,6 +22,14 @@ app.config.update(dict(
 ))
 app.config.from_envvar('WEBKZ_SETTINGS', silent=True)
 
+g_all_servers = [
+    {'id': 'SanFrancisco-1', 'domain': 'netqe-vm-243.cn.oracle.com'},
+    {'id': 'BeiJing-1', 'domain': 'netqe-vm-237.cn.oracle.com'},
+    {'id': 'SuZhou-vm', 'domain': '192.168.1.71'},
+    ]
+'''online server'''
+g_servers = []
+TIMEOUT = 2
 '''
 helpers
 '''
@@ -50,7 +58,7 @@ def _load_remote_json(domain, route):
     url = "http://" + domain + ":5000/" + route
     print url
     try:
-        data = json.load(urllib2.urlopen(url, timeout = 2))
+        data = json.load(urllib2.urlopen(url, timeout = TIMEOUT))
     except urllib2.URLError, e:
         app.logger.info(_format_log("Timeout: " + url))
         return None
@@ -59,19 +67,23 @@ def _load_remote_json(domain, route):
 def _check_server_up(hostname):
     import socket;
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    sock.settimeout(5)
+    sock.settimeout(TIMEOUT)
     result = sock.connect_ex((hostname, 22))
     if result == 0:
         return True
     return False
 
-g_all_servers = [
-    {'id': 'SanFrancisco-1', 'domain': 'netqe-vm-243.cn.oracle.com'},
-    {'id': 'BeiJing-1', 'domain': 'netqe-vm-237.cn.oracle.com'},
-    {'id': 'SuZhou-vm', 'domain': '192.168.1.71'},
-    ]
-'''online server'''
-g_servers = []
+def _check_servers():
+    for i, _ in enumerate(g_all_servers):
+        if _check_server_up(g_all_servers[i]['domain']):
+            g_servers.append(g_all_servers[i])
+            g_all_servers[i]['status'] = 1
+            print str(g_all_servers[i]) + " is up!"
+        else:
+            g_all_servers[i]['status'] = 0
+'''
+DB
+'''
 
 def connect_db():
     """Connects to the specific database."""
@@ -231,16 +243,13 @@ def servers():
     # instances = cur.fetchall()
     if not session.get('logged_in'):
         return redirect(url_for('login'))
-    return render_template('servers.html', servers=g_servers)
+    _check_servers()
+    return render_template('servers.html', servers=g_all_servers)
 
 if __name__ == "__main__":
     handler = RotatingFileHandler('foo.log', maxBytes=10000, backupCount=1)
     handler.setLevel(logging.INFO)
     app.logger.addHandler(handler)
 
-    for server in g_all_servers:
-        print server
-        if _check_server_up(server['domain']):
-            g_servers.append(server)
-            print str(server) + " is up!"
+    _check_servers()
     app.run('0.0.0.0')
