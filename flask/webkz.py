@@ -259,6 +259,12 @@ def servers():
         return redirect(url_for('login'))
     _check_servers()
     return render_template('servers.html', servers=g_all_servers)
+	
+@app.route('/cpuUsage')
+def cpuUsage():
+	usage=80
+	d = {'usage':80}
+	return json.dumps(d)
 
 if __name__ == "__main__":
     handler = RotatingFileHandler('foo.log', maxBytes=100000, backupCount=1)

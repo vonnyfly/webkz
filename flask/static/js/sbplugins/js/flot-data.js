@@ -20,6 +20,41 @@ $(document).ready(function() {
 data format
 [[0,50],[1,56],[2,36],[3,76],.....[]]
 **/
+	function redrawCpuUsage(){
+		$.get('/cpuUsage',function(data){
+		console.log(data);
+			var data=JSON.parse(data);
+			console.log(data.usage);
+			if (data_cpu.length) {
+				data_cpu = data_cpu.slice(1);
+			}
+
+			while (data_cpu.length < maximum) {
+				var previous = data_cpu.length ? data_cpu[data_cpu.length - 1] : 50;
+				var y = previous + Math.random() * 10 - 5;
+
+				if(data){
+					data_cpu.push(data.usage);
+				}else
+					data_cpu.push(y < 0 ? 0 : y > 100 ? 100 : y);
+			}
+
+			// zip the generated y values with the x values
+
+			var res = [];
+			for (var i = 0; i < data_cpu.length; ++i) {
+				res.push([i, data_cpu[i]])
+			}
+			series_cpu = [{
+				data: res,
+				lines: {
+					fill: true
+				}
+			}];
+			plot_cpu.setData(series_cpu);
+			plot_cpu.draw();
+		});
+	}
     function getRandomDataCpu() {
 
         if (data_cpu.length) {
@@ -84,7 +119,6 @@ data format
         return res;
     }
     //
-
     series_cpu = [{
         data: getRandomDataCpu(),
         lines: {
@@ -151,10 +185,11 @@ data format
     // Update the random dataset at 25FPS for a smoothly-animating chart
 
     setInterval(function updateRandom() {
-        series_cpu[0].data = getRandomDataCpu();
-        plot_cpu.setData(series_cpu);
-        plot_cpu.draw();
-    }, 40);
+       // series_cpu[0].data = getRandomDataCpu();
+        //plot_cpu.setData(series_cpu);
+        //plot_cpu.draw();
+		redrawCpuUsage();
+    }, 4000);
 	
 	
 	var plot_mem = $.plot(container_mem, series_mem, {
@@ -201,8 +236,9 @@ data format
 
 	setInterval(function updateRandom() {
         series_mem[0].data = getRandomDataMem();
-        plot_mem.setData(series_mem);
+       plot_mem.setData(series_mem);
         plot_mem.draw();
+		
     }, 40);
 // plot disk
 
