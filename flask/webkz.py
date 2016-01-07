@@ -30,6 +30,21 @@ def _get_time():
 def _format_log(msg):
     return '%s | %s | Operation: %s' %(_get_time(), session['username'], msg)
 
+def _parser_log():
+    if not session.get('logged_in'):
+        return redirect(url_for('login'))
+
+    log_file = 'foo.log'
+    content = ""
+    logs = []
+    if os.path.exists(log_file):
+        with open(log_file, 'r') as f:
+            content = f.readlines()
+
+    for line in content:
+        logs.append(line.split('|'))
+    return logs
+	
 def connect_db():
     """Connects to the specific database."""
     rv = sqlite3.connect(app.config['DATABASE'])
@@ -55,23 +70,19 @@ def close_db(error):
 
 @app.route('/')
 def index():
-    return redirect(url_for('instances'))
-
+    return redirect(url_for('dashboard'))
+	
+@app.route('/dashboard')
+def dashboard():
+	if not session.get('logged_in'):
+		return redirect(url_for('login'))
+	logs = _parser_log()
+	return render_template('dashboard.html',logs=logs)
+	
 @app.route('/logs')
-def record_log():
-    if not session.get('logged_in'):
-        return redirect(url_for('login'))
-
-    log_file = 'foo.log'
-    content = ""
-    logs = []
-    if os.path.exists(log_file):
-        with open(log_file, 'r') as f:
-            content = f.readlines()
-
-    for line in content:
-        logs.append(line.split('|'))
-    return render_template('logs.html', logs=logs)
+def show_log():
+	logs = _parser_log()
+	return render_template('logs.html', logs=logs)
 
 @app.route('/instances', methods=['GET', 'POST'])
 def instances():
@@ -126,6 +137,21 @@ def instances():
 
         return render_template('instances.html', test="xxx")
 
+@app.route('/users')
+def users():
+	if not session.get('logged_in'):
+		abort(401)
+	users = [
+            {'name': 'admin', 'id': '1', 'role': 'admin'},
+			{'name': 'Qingzhou', 'id': '2', 'role': 'server admin'},
+			{'name': 'Alex', 'id': '3', 'role': 'server admin'},
+			{'name': 'yuanyue', 'id': '4', 'role': 'instance admin'},
+			{'name': 'Peirong', 'id': '5', 'role': 'instance admin'},
+			{'name': 'Sonny', 'id': '6', 'role': 'instance admin'},
+			{'name': 'Chenchen', 'id': '7', 'role': 'instance admin'}
+            ];
+	return render_template('users.html', users=users)
+	
 @app.route('/servers/<server_name>/create/')
 def create_instance(server_name):
     if not session.get('logged_in'):
@@ -150,7 +176,7 @@ def login():
             session['logged_in'] = True
             session['username'] = request.form['username']
             app.logger.info(_format_log("login"))
-            return redirect(url_for('instances'))
+            return redirect(url_for('dashboard'))
     return render_template('login.html', error=error)
 
 

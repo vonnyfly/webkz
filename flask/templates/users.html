@@ -1,0 +1,25 @@
+{% extends "layout.html" %}
+{% block content %}
+  {% if session.logged_in %}
+  <table class="table table-striped">
+    <thead class="thead-inverse">
+      <tr>
+        <th>#</th>
+        <th>Name</th>
+        <th>Role</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for user in users %}
+      <tr>
+        <th scope="row">1</th>
+        <td>{{ user.name }}</td>
+        <td>{{ user.role }}</td>
+      </tr>
+      {% else %}
+      <li><em>Unbelievable.  No entries here so far</em>
+      {% endfor %}
+      </tbody>
+  </table>
+  {% endif %}
+{% endblock %}
