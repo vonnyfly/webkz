@@ -5,6 +5,8 @@ from flask import Flask, request, session, g, redirect, url_for, abort, \
      render_template, flash
 import logging
 from logging.handlers import RotatingFileHandler
+from time import gmtime, strftime
+import json
 
 # create our little application :)
 app = Flask(__name__)
@@ -19,6 +21,14 @@ app.config.update(dict(
 ))
 app.config.from_envvar('WEBKZ_SETTINGS', silent=True)
 
+'''
+helpers
+'''
+def _get_time():
+    return strftime("%Y-%m-%d %H:%M:%S", gmtime())
+
+def _format_log(msg):
+    return '%s | %s | Operation: %s' %(_get_time(), session['username'], msg)
 
 def connect_db():
     """Connects to the specific database."""
@@ -51,9 +61,17 @@ def index():
 def record_log():
     if not session.get('logged_in'):
         return redirect(url_for('login'))
-    with open('foo.log', 'r') as f:
-        content = f.readlines()
-    return render_template('logs.html', logs=content)
+
+    log_file = 'foo.log'
+    content = ""
+    logs = []
+    if os.path.exists(log_file):
+        with open(log_file, 'r') as f:
+            content = f.readlines()
+
+    for line in content:
+        logs.append(line.split('|'))
+    return render_template('logs.html', logs=logs)
 
 @app.route('/instances', methods=['GET', 'POST'])
 def instances():
@@ -90,20 +108,22 @@ def instances():
         print request.form
         name = request.form['name']
         if 'poweron' in request.form:
-            app.logger.info('User: %s, Operation:Poweron' %(session['username'],))
-            print "poweronxxxxx"
+            pass
+
         if 'poweroff' in request.form:
-            app.logger.info('User: %s, Operation:poweroff' %(session['username'],))
-            print "poweroff"
+            pass
+
         if 'powercycle' in request.form:
-            app.logger.info('User: %s, Operation:powercycle' %(session['username'],))
-            print "powercycle"
+            pass
+
         if 'suspend' in request.form:
-            app.logger.info('User: %s, Operation:suspend' %(session['username'],))
-            print "suspend"
+            pass
+
         if 'resume' in request.form:
-            app.logger.info('User: %s, Operation:resume' %(session['username'],))
-            print "resume"
+            pass
+
+        app.logger.info(_format_log(json.dumps(request.form)))
+
         return render_template('instances.html', test="xxx")
 
 @app.route('/instances/<server_name>/create/')
@@ -128,14 +148,14 @@ def login():
         else:
             session['logged_in'] = True
             session['username'] = request.form['username']
-            app.logger.info('User: %s, Operation:login' %(session['username'],))
+            app.logger.info(_format_log("login"))
             return redirect(url_for('instances'))
     return render_template('login.html', error=error)
 
 
 @app.route('/logout')
 def logout():
-    app.logger.info('User: %s, Operation:logout' %(session['username'],))
+    app.logger.info(_format_log("logout"))
     session.pop('logged_in', None)
     session.pop('username', None)
     return redirect(url_for('login'))
