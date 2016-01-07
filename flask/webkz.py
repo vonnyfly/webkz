@@ -29,7 +29,7 @@ g_all_servers = [
     ]
 '''online server'''
 g_servers = []
-TIMEOUT = 2
+TIMEOUT = 4
 '''
 helpers
 '''
@@ -144,8 +144,9 @@ def instances():
         return redirect(url_for('login'))
 
     if request.method == 'POST':
-        print request.form
+        app.logger.info(_format_log(json.dumps(request.form)))
         name = request.form['name']
+
         if 'poweron' in request.form:
             pass
 
@@ -160,7 +161,10 @@ def instances():
 
         if 'resume' in request.form:
             pass
-        app.logger.info(_format_log(json.dumps(request.form)))
+
+        if 'configure' in request.form:
+            return redirect("/servers/" + request.form['compute_id'] + "/instance?name=" + name)
+
 
     # if request.method == 'GET':
         # instances = {'server': [
@@ -186,11 +190,11 @@ def instances():
             instances[serv['domain']] = ins
 
     if len(instances) == 0:
-        instances = {'hotdog': [
-            {'name': 'host1', 'status': '1', 'ip': '127.0.0.1'}],
-            'hotcat': [
-            {'name': 'host2', 'status': '2', 'ip': '127.0.0.2'},
-            {'name': 'host3', 'status': '3', 'ip': '127.0.0.3'}]}
+        instances = {'netqe-vm-243.cn.oracle.com': [
+            {'name': 'host1', 'status': 'installed', 'ip': '127.0.0.1'}],
+            'netqe-vm-237.cn.oracle.com': [
+            {'name': 'host2', 'status': 'incomplete', 'ip': '127.0.0.2'},
+            {'name': 'host3', 'status': 'running', 'ip': '127.0.0.3'}]}
     print instances
     return render_template('instances.html', instances=instances)
 
@@ -211,7 +215,7 @@ def users():
             ];
 	return render_template('users.html', users=users)
 
-@app.route('/servers/<server_name>/create/')
+@app.route('/servers/<server_name>/instance/')
 def create_instance(server_name):
     if not session.get('logged_in'):
         abort(401)
