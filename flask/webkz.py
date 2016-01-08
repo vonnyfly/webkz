@@ -35,6 +35,15 @@ g_servers_map = {
 '''online server'''
 g_servers = []
 TIMEOUT = 10
+g_users =  [
+	{'name': 'admin', 'id': '1', 'role': 'admin'},
+	{'name': 'Qingzhou', 'id': '2', 'role': 'server admin'},
+	{'name': 'Alex', 'id': '3', 'role': 'server admin'},
+	{'name': 'yuanyue', 'id': '4', 'role': 'instance admin'},
+	{'name': 'Peirong', 'id': '5', 'role': 'instance admin'},
+	{'name': 'Sonny', 'id': '6', 'role': 'instance admin'},
+	{'name': 'Chenchen', 'id': '7', 'role': 'instance admin'}
+	]
 '''
 helpers
 '''
@@ -135,7 +144,10 @@ def dashboard():
 	if not session.get('logged_in'):
 		return redirect(url_for('login'))
 	logs = _parser_log()
-	return render_template('dashboard.html',logs=logs)
+	serversNum=len(g_all_servers)
+	usersNum=len(g_users)
+	logsNum=len(logs)
+	return render_template('dashboard.html',logs=logs,serversNum=len(g_all_servers),usersNum=usersNum,logsNum=logsNum)
 
 @app.route('/logs')
 def show_log():
@@ -219,17 +231,8 @@ def instances():
 @app.route('/users')
 def users():
 	if not session.get('logged_in'):
-		abort(401)
-	users = [
-            {'name': 'admin', 'id': '1', 'role': 'admin'},
-			{'name': 'Qingzhou', 'id': '2', 'role': 'server admin'},
-			{'name': 'Alex', 'id': '3', 'role': 'server admin'},
-			{'name': 'yuanyue', 'id': '4', 'role': 'instance admin'},
-			{'name': 'Peirong', 'id': '5', 'role': 'instance admin'},
-			{'name': 'Sonny', 'id': '6', 'role': 'instance admin'},
-			{'name': 'Chenchen', 'id': '7', 'role': 'instance admin'}
-            ];
-	return render_template('users.html', users=users)
+		return redirect(url_for('login'))
+	return render_template('users.html', users=g_users)
 
 @app.route('/servers/<server_name>/create/')
 def create_instance(server_name):
@@ -297,9 +300,11 @@ def servers():
 
 @app.route('/cpuUsage')
 def cpuUsage():
-	usage=80
-	d = {'usage':80}
-	return json.dumps(d)
+	if len(g_servers) == 0:
+		d = {'kernel':'0.8%','user':'0.4%'}
+		return json.dumps(d)
+	usage = _load_remote_json(g_servers[0]['domain'], "hostinfo")
+	return json.dumps(usage)
 
 if __name__ == "__main__":
     handler = RotatingFileHandler('foo.log', maxBytes=100000, backupCount=1)

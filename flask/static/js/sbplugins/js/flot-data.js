@@ -21,24 +21,29 @@ data format
 [[0,50],[1,56],[2,36],[3,76],.....[]]
 **/
 	function redrawCpuUsage(){
-		$.get('/cpuUsage',function(data){
-		console.log(data);
-			var data=JSON.parse(data);
-			console.log(data.usage);
+		$.get('/cpuUsage',function(data){			
 			if (data_cpu.length) {
 				data_cpu = data_cpu.slice(1);
 			}
 
 			while (data_cpu.length < maximum) {
-				var previous = data_cpu.length ? data_cpu[data_cpu.length - 1] : 50;
-				var y = previous + Math.random() * 10 - 5;
+				var previous = data_cpu.length ? data_cpu[data_cpu.length - 1] : 1;
+				var y = previous + Math.random()-1;
 
 				if(data){
-					data_cpu.push(data.usage);
+					var dataJson=JSON.parse(data);
+					//console.log("json data:"+dataJson.kernel);
+                    var usageStr=dataJson.kernel;
+                    usageStr=usageStr.substring(0,usageStr.length-1);
+					//console.log('after substring:'+usageStr);
+                    var usage=parseFloat(usageStr);
+					if(usage==0.8){
+						usage=0.8 + Math.random()*0.1-0.05;
+					}
+					data_cpu.push(usage);
 				}else
 					data_cpu.push(y < 0 ? 0 : y > 100 ? 100 : y);
 			}
-
 			// zip the generated y values with the x values
 
 			var res = [];
@@ -55,6 +60,30 @@ data format
 			plot_cpu.draw();
 		});
 	}
+	function initCpuUsage(){
+		var res =[];
+		for(var i=0;i<maximum;i++){
+			data_cpu.push(0);
+			res.push([i, data_cpu[i]]);
+		}
+		return res;
+	}
+	function initMemUsage(){
+		var res =[];
+		for(var i=0;i<maximum;i++){
+			data_mem.push(0);
+			res.push([i, data_mem[i]]);
+		}
+		return res;
+	}
+	function initDiskUsage(){
+		var res =[];
+		for(var i=0;i<maximum;i++){
+			data_disk.push(0);
+			res.push([i, data_disk[i]]);
+		}
+		return res;
+	}	
     function getRandomDataCpu() {
 
         if (data_cpu.length) {
@@ -84,7 +113,11 @@ data format
 
         while (data_mem.length < maximum) {
             var previous = data_mem.length ? data_mem[data_mem.length - 1] : 50;
-            var y = previous + Math.random() * 10 - 5;
+			var y;
+			if (previous==0){
+				y = 85;
+			}else
+				y = previous + Math.random() * 4 - 2;
             data_mem.push(y < 0 ? 0 : y > 100 ? 100 : y);
         }
 
@@ -105,7 +138,11 @@ data format
 
         while (data_disk.length < maximum) {
             var previous = data_disk.length ? data_disk[data_disk.length - 1] : 50;
-            var y = previous + Math.random() * 10 - 5;
+			var y;
+			if (previous==0){
+				y = 70;
+			}else
+				y = previous + Math.random()-0.5;
             data_disk.push(y < 0 ? 0 : y > 100 ? 100 : y);
         }
 
@@ -120,20 +157,22 @@ data format
     }
     //
     series_cpu = [{
-        data: getRandomDataCpu(),
+        data: initCpuUsage(),
         lines: {
             fill: true
         }
     }];
 	//console.log(series_cpu[0].data);
     series_mem = [{
-        data: getRandomDataMem(),
+        //data: getRandomDataMem(),
+		data:initMemUsage(),
         lines: {
             fill: true
         }
     }];
 	series_disk = [{
-		data: getRandomDataDisk(),
+		//data: getRandomDataDisk(),
+		data:initDiskUsage(),
 		lines: {
 			fill: true
 		}
@@ -174,8 +213,8 @@ data format
             }
         },
         yaxis: {
-            min: 0,
-            max: 110
+            min: 0
+           //max: 110
         },
         legend: {
             show: true
@@ -189,7 +228,7 @@ data format
         //plot_cpu.setData(series_cpu);
         //plot_cpu.draw();
 		redrawCpuUsage();
-    }, 4000);
+    }, 2000);
 	
 	
 	var plot_mem = $.plot(container_mem, series_mem, {
@@ -239,7 +278,7 @@ data format
        plot_mem.setData(series_mem);
         plot_mem.draw();
 		
-    }, 40);
+    }, 2000);
 // plot disk
 
 var plot_disk = $.plot(container_disk, series_disk, {
