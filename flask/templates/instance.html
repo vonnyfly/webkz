@@ -97,7 +97,7 @@
                   </ul>
                   <!-- Tab panes -->
                   <div class="tab-content">
-                     {% if entry.status == "1" %}
+                     {% if entry.status == "running" %}
                      <div role="tabpanel" class="tab-pane tab-pane-bordered active" id="poweroff">
                         <p> This action sends an ACPI shutdown signal to the instance. </p>
                         <form action="" method="post" role="form">
@@ -127,7 +127,7 @@
                         </form>
                      </div>
                      {% endif %}
-                     {% if entry.status == "1" %}
+                     {% if entry.status == "installed" %}
                      <div role="tabpanel" class="tab-pane tab-pane-bordered active" id="resume">
                         <p> This action restore the instance after suspend. </p>
                         <form action="" method="post" role="form">
@@ -136,7 +136,7 @@
                         </form>
                      </div>
                      {% endif %}
-                     {% if entry.status == "1" %}
+                     {% if entry.status == "installed" or entry.status == "configured" or entry.status == "incomplete" or entry.status == "ready" %}
                      <div role="tabpanel" class="tab-pane tab-pane-bordered active" id="boot">
                         <p> Click on Boot button to start this instance. </p>
                         <form action="" method="post" role="form">
@@ -719,7 +719,6 @@
                            <button type="submit" class="btn btn-lg btn-success pull-right" name="delete"> Destroy </button>
                         </form>
                         {% endif %}
-                        <button class="btn btn-lg btn-success disabled pull-right" name="delete"> Destroy </button>
                         <div class="clearfix"></div>
                      </div>
                   </div>

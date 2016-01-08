@@ -27,9 +27,14 @@ g_all_servers = [
     {'id': 'ORACLE-T5-1', 'domain': 'netqe-vm-237.cn.oracle.com'},
     {'id': 'SUZHOU-VM', 'domain': '192.168.1.71'},
     ]
+g_servers_map = {
+    'ORACLE-X5-1': 'netqe-vm-243.cn.oracle.com',
+    'ORACLE-T5-1': 'netqe-vm-237.cn.oracle.com',
+    'SUZHOU-VM': '192.168.1.71'
+}
 '''online server'''
 g_servers = []
-TIMEOUT = 4
+TIMEOUT = 10
 '''
 helpers
 '''
@@ -62,7 +67,8 @@ def _load_remote_json(domain, route):
         data = json.load(urllib2.urlopen(url, timeout = TIMEOUT))
     # except urllib2.URLError, e:
     except:
-        app.logger.info(_format_log("Timeout: " + url))
+        # app.logger.info(_format_log("Timeout: " + url))
+        print "Timeout: " + url
         return None
     return data
 
@@ -201,10 +207,10 @@ def instances():
 
     if len(instances) == 0:
         instances = {'netqe-vm-243.cn.oracle.com': [
-            {'name': 'host1', 'status': 'installed', 'ip': '127.0.0.1'}],
+            {'name': 'zone1', 'status': 'installed', 'ip': '127.0.0.1', 'brand': 'solaris'}],
             'netqe-vm-237.cn.oracle.com': [
-            {'name': 'host2', 'status': 'incomplete', 'ip': '127.0.0.2'},
-            {'name': 'host3', 'status': 'running', 'ip': '127.0.0.3'}]}
+            {'name': 'zone2', 'status': 'incomplete', 'ip': '127.0.0.2', 'brand': 'solaris'},
+            {'name': 'zone3', 'status': 'running', 'ip': '127.0.0.3', 'brand': 'solaris'}]}
     print instances
     return render_template('instances.html', instances=instances, servers=g_servers, messages=messages)
 
@@ -232,11 +238,15 @@ def create_instance(server_name):
     instance_name = request.args.get('name', '')
     messages = []
     msg = "Create Zone - %s on %s" % (instance_name, server_name)
-    app.logger.info(_format_log(json.dumps(msg)))
+    app.logger.info(_format_log(msg))
     messages.append(msg)
-    result = _load_remote_json(server_name, "boot?name=" + instance_name)
+
+    result = _load_remote_json(g_servers_map[server_name], "boot?name=" + instance_name)
     print result
-    return render_template('instance.html', instance_name=instance_name, messages=messages, entry= "xxx")
+    entry = {
+    'status' : 'installed'
+    }
+    return render_template('instance.html', instance_name=instance_name, messages=messages, entry= entry)
 
 @app.route('/servers/<server_name>/instance/')
 def configure_instance(server_name):
@@ -244,10 +254,13 @@ def configure_instance(server_name):
         abort(401)
     instance_name = request.args.get('name', '')
     messages = []
-    msg = "Create Zone - %s on %s" % (instance_name, server_name)
-    app.logger.info(_format_log(json.dumps(msg)))
+    msg = "Get Configure of Zone - %s on %s" % (instance_name, server_name)
+    app.logger.info(_format_log(msg))
     messages.append(msg)
-    return render_template('instance.html', instance_name=instance_name, messages=messages)
+    entry = {
+    'status' : 'running'
+    }
+    return render_template('instance.html', instance_name=instance_name, messages=messages, entry=entry)
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
