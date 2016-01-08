@@ -8,7 +8,7 @@
         <div class="modal-content">
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-                <h4 class="modal-title"> Choose a Server for new zone </h4>
+                <h4 class="modal-title"> Choose a Server for new Zone </h4>
             </div>
             <div class="modal-body">
                 <form class="form-horizontal" role="form">
@@ -30,6 +30,24 @@
                         <label class="col-sm-4 control-label"> Zone Name </label>
                         <div class="col-sm-6">
                             <input id="instance_name" type="text" class="form-control" placeholder="Zone1" aria-describedby="basic-addon1">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label"> VCPU </label>
+                        <div class="col-sm-6">
+                            <input id="instance_vcpu" type="text" class="form-control" value="1" aria-describedby="basic-addon1">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label"> Memory </label>
+                        <div class="col-sm-6">
+                            <input id="instance_mem" type="text" class="form-control" value="200" aria-describedby="basic-addon1">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label"> IP </label>
+                        <div class="col-sm-6">
+                            <input id="instance_ip" type="text" class="form-control" value="173.16.18.1" aria-describedby="basic-addon1">
                         </div>
                     </div>
                 </form>

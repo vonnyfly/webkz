@@ -1,6 +1,8 @@
 {% extends "layout.html" %}
 {% block content %}
   {% if session.logged_in %}
+  {% include 'messages_block.html' %}
+  {% include 'errors_block.html' %}
   {% include 'create_inst_block.html' %}
 
   {% for key, value in instances.iteritems() %}
@@ -11,8 +13,10 @@
     <tr>
         <th>Name</th>
         <th>Status</th>
+        <th>IP</th>
         <th>VCPU</th>
         <th>Memory</th>
+        <th>Brand</th>
         <th data-sortable="false" style="width:205px;">Actions</th>
     </tr>
     </thead>
@@ -21,8 +25,10 @@
       <tr>
         <td>{{ entry.name }}</td>
         <td>{{ entry.status }}</td>
+        <td>10.182.70.68</td>
         <td>1</td>
         <td>200M</td>
+        <td>{{ entry.brand }}</td>
             <td><form action="" method="post" role="form">
                     <input type="hidden" name="name" value="{{ entry.name }}"/>
                     <input type="hidden" name="compute_id" value="{{ key }}"/>
@@ -43,7 +49,7 @@
                             <span class="glyphicon glyphicon-eye-open"></span>
                         </button>
                     {% endif %}
-                     {% if entry.status == "incomplete" %}
+                     {% if entry.status == "incomplete" or entry.status == "configured" %}
                         <button class="btn btn-sm btn-default disabled" type="submit" name="resume" title="Resume">
                             <span class="glyphicon glyphicon-play"></span>
                         </button>
@@ -91,7 +97,7 @@
       function create_instance() {
           var compute = $("#server_select").val();
           var instance_name = $("#instance_name").val();
-          window.location = "/servers/" + compute + "/instance?name=" + instance_name;
+          window.location = "/servers/" + compute + "/create?name=" + instance_name;
       }
   </script>
 {% endblock %}

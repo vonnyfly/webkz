@@ -23,9 +23,9 @@ app.config.update(dict(
 app.config.from_envvar('WEBKZ_SETTINGS', silent=True)
 
 g_all_servers = [
-    {'id': 'SanFrancisco-1', 'domain': 'netqe-vm-243.cn.oracle.com'},
-    {'id': 'BeiJing-1', 'domain': 'netqe-vm-237.cn.oracle.com'},
-    {'id': 'SuZhou-vm', 'domain': '192.168.1.71'},
+    {'id': 'ORACLE-X5-1', 'domain': 'netqe-vm-243.cn.oracle.com'},
+    {'id': 'ORACLE-T5-1', 'domain': 'netqe-vm-237.cn.oracle.com'},
+    {'id': 'SUZHOU-VM', 'domain': '192.168.1.71'},
     ]
 '''online server'''
 g_servers = []
@@ -60,7 +60,8 @@ def _load_remote_json(domain, route):
     print url
     try:
         data = json.load(urllib2.urlopen(url, timeout = TIMEOUT))
-    except urllib2.URLError, e:
+    # except urllib2.URLError, e:
+    except:
         app.logger.info(_format_log("Timeout: " + url))
         return None
     return data
@@ -142,28 +143,37 @@ def instances():
     # instances = cur.fetchall()
     if not session.get('logged_in'):
         return redirect(url_for('login'))
-
+    messages = []
     if request.method == 'POST':
         app.logger.info(_format_log(json.dumps(request.form)))
         name = request.form['name']
+        compute_id = request.form['compute_id']
 
         if 'poweron' in request.form:
-            pass
+            result = _load_remote_json(compute_id, "boot?name=" + name)
+            messages.append("PowerOn Zone - " + name +"!")
 
         if 'poweroff' in request.form:
-            pass
+            result = _load_remote_json(compute_id, "stop?name=" + name)
+            messages.append("PowerOff Zone - " + name +"!")
 
         if 'powercycle' in request.form:
-            pass
+            result = _load_remote_json(compute_id, "reboot?name=" + name)
+            messages.append("Reboot Zone - " + name +"!")
 
         if 'suspend' in request.form:
-            pass
+            result = _load_remote_json(compute_id, "stop?name=" + name)
+            messages.append("Suspend Zone - " + name +"!")
 
         if 'resume' in request.form:
-            pass
+            result = _load_remote_json(compute_id, "boot?name=" + name)
+            messages.append("Resume Zone - " + name +"!")
 
         if 'configure' in request.form:
-            return redirect("/servers/" + request.form['compute_id'] + "/instance?name=" + name)
+            return redirect("/servers/" + compute_id + "/instance?name=" + name)
+
+
+        print result
 
 
     # if request.method == 'GET':
@@ -196,7 +206,7 @@ def instances():
             {'name': 'host2', 'status': 'incomplete', 'ip': '127.0.0.2'},
             {'name': 'host3', 'status': 'running', 'ip': '127.0.0.3'}]}
     print instances
-    return render_template('instances.html', instances=instances)
+    return render_template('instances.html', instances=instances, servers=g_servers, messages=messages)
 
         # return render_template('instance.html', test="xxx", entry="xxx")
 
@@ -215,17 +225,29 @@ def users():
             ];
 	return render_template('users.html', users=users)
 
-@app.route('/servers/<server_name>/instance/')
+@app.route('/servers/<server_name>/create/')
 def create_instance(server_name):
     if not session.get('logged_in'):
         abort(401)
-    # db = get_db()
-    # db.execute('insert into entries (title, text) values (?, ?)',
-    #            [request.form['title'], request.form['text']])
-    # db.commit()
     instance_name = request.args.get('name', '')
-    app.logger.info(_format_log(json.dumps("Create Zone - %s on %s" % (instance_name, server_name))))
-    return render_template('instance.html', instance_name=instance_name, entry="xxxx")
+    messages = []
+    msg = "Create Zone - %s on %s" % (instance_name, server_name)
+    app.logger.info(_format_log(json.dumps(msg)))
+    messages.append(msg)
+    result = _load_remote_json(server_name, "boot?name=" + instance_name)
+    print result
+    return render_template('instance.html', instance_name=instance_name, messages=messages, entry= "xxx")
+
+@app.route('/servers/<server_name>/instance/')
+def configure_instance(server_name):
+    if not session.get('logged_in'):
+        abort(401)
+    instance_name = request.args.get('name', '')
+    messages = []
+    msg = "Create Zone - %s on %s" % (instance_name, server_name)
+    app.logger.info(_format_log(json.dumps(msg)))
+    messages.append(msg)
+    return render_template('instance.html', instance_name=instance_name, messages=messages)
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -259,7 +281,7 @@ def servers():
         return redirect(url_for('login'))
     _check_servers()
     return render_template('servers.html', servers=g_all_servers)
-	
+
 @app.route('/cpuUsage')
 def cpuUsage():
 	usage=80
