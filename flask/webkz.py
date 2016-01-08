@@ -34,7 +34,7 @@ g_servers_map = {
 }
 '''online server'''
 g_servers = []
-TIMEOUT = 10
+TIMEOUT = 5
 g_users =  [
 	{'name': 'admin', 'id': '1', 'role': 'admin'},
 	{'name': 'Qingzhou', 'id': '2', 'role': 'server admin'},
