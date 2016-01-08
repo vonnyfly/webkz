@@ -37,7 +37,7 @@
                                     <i class="fa fa-server fa-5x"></i>
                                 </div>
                                 <div class="col-xs-9 text-right">
-                                    <div class="huge">2</div>
+                                    <div class="huge">{{ serversNum }}</div>
                                     <div>Servers</div>
                                 </div>
                             </div>
@@ -52,7 +52,7 @@
                     </div>
                 </div>
                 <div class="col-lg-3 col-md-6">
-                    <div class="panel panel-yellow">
+                    <div class="panel panel-red">
                         <div class="panel-heading">
                             <div class="row">
                                 <div class="col-xs-3">
@@ -60,7 +60,7 @@
                                 </div>
                                 <div class="col-xs-9 text-right">
                                     <div class="huge">6</div>
-                                    <div>Instances</div>
+                                    <div >Instances</div>
                                 </div>
                             </div>
                         </div>
@@ -81,7 +81,7 @@
                                     <i class="fa fa-users fa-5x"></i>
                                 </div>
                                 <div class="col-xs-9 text-right">
-                                    <div class="huge">6</div>
+                                    <div class="huge">{{ usersNum}}</div>
                                     <div>Users</div>
                                 </div>
                             </div>
@@ -96,14 +96,14 @@
                     </div>
                 </div>
                 <div class="col-lg-3 col-md-6">
-                    <div class="panel panel-red">
+                    <div class="panel panel-yellow">
                         <div class="panel-heading">
                             <div class="row">
                                 <div class="col-xs-3">
                                     <i class="fa fa-list-alt fa-5x"></i>
                                 </div>
                                 <div class="col-xs-9 text-right">
-                                    <div class="huge">3</div>
+                                    <div class="huge">{{ logsNum }}</div>
                                     <div>Logs</div>
                                 </div>
                             </div>
@@ -122,28 +122,10 @@
             <!-- /.row -->
             <div class="row">
                 <div class="col-lg-6">
-                    <div class="panel panel-default">
+                    <div class="panel panel-info">
                         <div class="panel-heading">
-                            <i class="fa fa-bar-chart-o fa-fw"></i> CPU usage
-                            <div class="pull-right">
-                                <div class="btn-group">
-                                    <button type="button" class="btn btn-default btn-xs dropdown-toggle" data-toggle="dropdown">
-                                        Actions
-                                        <span class="caret"></span>
-                                    </button>
-                                    <ul class="dropdown-menu pull-right" role="menu">
-                                        <li><a href="#">Action</a>
-                                        </li>
-                                        <li><a href="#">Another action</a>
-                                        </li>
-                                        <li><a href="#">Something else here</a>
-                                        </li>
-                                        <li class="divider"></li>
-                                        <li><a href="#">Separated link</a>
-                                        </li>
-                                    </ul>
-                                </div>
-                            </div>
+                            <i class="fa fa-bar-chart-o fa-fw"></i> <font size="3"> <strong> CPU Usage </strong> </font>
+                            
                         </div>
                         <!-- /.panel-heading -->
                         <div class="panel-body">
@@ -159,28 +141,10 @@
                 <!-- /.col-lg-8 -->
 				<!-- /.col-lg-4 -->
                 <div class="col-lg-6">
-                    <div class="panel panel-default">
+                    <div class="panel panel-info">
                         <div class="panel-heading">
-                            <i class="fa fa-bar-chart-o fa-fw"></i> Memery usage
-                            <div class="pull-right">
-                                <div class="btn-group">
-                                    <button type="button" class="btn btn-default btn-xs dropdown-toggle" data-toggle="dropdown">
-                                        Actions
-                                        <span class="caret"></span>
-                                    </button>
-                                    <ul class="dropdown-menu pull-right" role="menu">
-                                        <li><a href="#">Action</a>
-                                        </li>
-                                        <li><a href="#">Another action</a>
-                                        </li>
-                                        <li><a href="#">Something else here</a>
-                                        </li>
-                                        <li class="divider"></li>
-                                        <li><a href="#">Separated link</a>
-                                        </li>
-                                    </ul>
-                                </div>
-                            </div>
+                            <i class="fa fa-bar-chart-o fa-fw"></i> <font size="3"> <strong> Memery usage </strong></font>
+                            
                         </div>
                         <!-- /.panel-heading -->
                         <div class="panel-body">
@@ -195,28 +159,9 @@
                 </div>
 				<!-- /.col-lg-4 -->
                 <div class="col-lg-6">
-                    <div class="panel panel-default">
+                    <div class="panel panel-info">
                         <div class="panel-heading">
-                            <i class="fa fa-bar-chart-o fa-fw"></i> Disk usage
-                            <div class="pull-right">
-                                <div class="btn-group">
-                                    <button type="button" class="btn btn-default btn-xs dropdown-toggle" data-toggle="dropdown">
-                                        Actions
-                                        <span class="caret"></span>
-                                    </button>
-                                    <ul class="dropdown-menu pull-right" role="menu">
-                                        <li><a href="#">Action</a>
-                                        </li>
-                                        <li><a href="#">Another action</a>
-                                        </li>
-                                        <li><a href="#">Something else here</a>
-                                        </li>
-                                        <li class="divider"></li>
-                                        <li><a href="#">Separated link</a>
-                                        </li>
-                                    </ul>
-                                </div>
-                            </div>
+                            <i class="fa fa-bar-chart-o fa-fw"></i> <font size="3"> <strong>Disk usage </strong></font>
                         </div>
                         <!-- /.panel-heading -->
                         <div class="panel-body">
@@ -230,7 +175,7 @@
                    
                 </div>
                 <div class="col-lg-6">
-                    <div class="panel panel-default">
+                    <div class="panel panel-yellow">
                         <div class="panel-heading">
                             <i class="fa fa-list-alt fa-fw"></i> Logs Panel
                         </div>
